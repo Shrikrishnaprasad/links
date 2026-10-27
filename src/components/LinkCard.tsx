@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from 'react';
-import { Copy, ExternalLink, Pin, Trash2, RotateCcw, Pencil, Lock, Globe, AlertTriangle, Star, CopyPlus } from 'lucide-react';
+import { Copy, ExternalLink, Pin, Trash2, RotateCcw, Pencil, Lock, Globe, AlertTriangle, Star, CopyPlus, Info } from 'lucide-react';
 import { linkVisibility, type LinkItem } from '../types/links';
 import { Favicon } from './ui';
 import { openLink } from '../services/nav';
@@ -15,6 +15,7 @@ interface Props {
   onPin?: () => void;
   onFavorite?: () => void;
   onDuplicate?: () => void;
+  onDetails?: () => void;
   onEdit?: () => void;
   onToggleVisibility?: () => void;
   /** Drag-and-drop handlers (spread on the card root). */
@@ -45,6 +46,11 @@ export function LinkCard(p: Props) {
 
   const actions = (
     <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+      {p.onDetails && !p.onRestore && (
+        <button className="icon-btn-sm" onClick={p.onDetails} title="Details" aria-label="Details">
+          <Info size={16} />
+        </button>
+      )}
       {p.onRestore ? (
         <button className="icon-btn-sm" onClick={p.onRestore} title="Restore" aria-label="Restore">
           <RotateCcw size={16} />
@@ -101,7 +107,7 @@ export function LinkCard(p: Props) {
     return (
       <div
         {...p.drag}
-        className={`group relative rounded-xl border overflow-hidden transition-shadow hover:shadow-g1 ${
+        className={`group relative rounded-xl border overflow-hidden transition-shadow hover:shadow-g1 [content-visibility:auto] [contain-intrinsic-size:auto_170px] ${
           selected ? 'bg-g-nav border-g-nav' : 'bg-g-surface border-transparent'
         } ${p.dropActive ? 'ring-2 ring-g-blue' : ''}`}
       >
@@ -151,7 +157,7 @@ export function LinkCard(p: Props) {
   return (
     <div
       {...p.drag}
-      className={`group grid grid-cols-[28px_minmax(0,3fr)_minmax(0,1.2fr)_minmax(0,1.5fr)_88px_248px] items-center gap-3 px-4 h-12 border-b border-g-border/60 ${
+      className={`group grid grid-cols-[28px_minmax(0,3fr)_minmax(0,1.2fr)_minmax(0,1.5fr)_88px_276px] items-center gap-3 px-4 h-12 border-b border-g-border/60 ${
         selected ? 'bg-g-nav' : 'hover:bg-g-hover'
       } ${p.dropActive ? 'shadow-[inset_0_2px_0_0_rgb(var(--g-blue))]' : ''}`}
     >

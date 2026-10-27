@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Globe, Lock, Sparkles, Loader2 } from 'lucide-react';
 import { useAppData } from './hooks';
+import { useT } from '../services/i18n';
 import { canFetchPages, fetchMeta, hasPagePermission, requestPagePermission } from '../services/meta';
 import { linkVisibility, type Collection, type LinkItem, type Visibility } from '../types/links';
 import { Field, Modal, SelectField } from './ui';
-import { addLink, canonicalUrl, normalizeUrl, updateLink } from '../services/storage';
+import { addLink, canonicalUrl, normalizeUrl, updateLink, validateUrl } from '../services/storage';
 import { readClipboard } from '../services/clipboard';
 
 interface Props {
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function AddLinkModal({ collections, defaultCollectionId, defaultSectionId, editing, onClose, onSaved }: Props) {
+  const t = useT();
   const [url, setUrl] = useState(editing?.url ?? '');
   const [title, setTitle] = useState(editing?.title ?? '');
   const [desc, setDesc] = useState(editing?.description ?? '');
@@ -68,58 +70,60 @@ export function AddLinkModal({ collections, defaultCollectionId, defaultSectionI
   }, [editing]);
 
   const save = async () => {
-    const parsed = normalizeUrl(url);
-    if (!parsed) return setError('Enter a valid URL, for example https://example.com');
+    const check = validateUrl(url);
+    if (!check.ok) return setError(check.reason);
+    const parsed = check.url;
     const tagList = [...new Set(tags.split(',').map((t) => t.trim()).filter(Boolean))];
     const base = { title, description: desc, tags: tagList, collectionId: cid, sectionId: sid || null, visibility: vis };
     if (editing) {
       await updateLink(editing.id, { ...base, url: parsed, title: title || parsed });
-      onSaved('Link updated');
+      onSaved(t('link.updated'));
     } else {
       await addLink({ url: parsed, ...base });
-      onSaved('Link saved');
+      onSaved(t('link.saved'));
     }
     onClose();
   };
 
   return (
     <Modal
-      title={editing ? 'Edit link' : 'Add link'}
+      title={editing ? t('dialog.editLink') : t('dialog.addLink')}
       onClose={onClose}
       footer={
         <>
-          <button className="btn-text" onClick={onClose}>Cancel</button>
-          <button className="btn-primary" onClick={save}>Save</button>
+          <button className="btn-text" onClick={onClose}>{t('common.cancel')}</button>
+          <button className="btn-primary" onClick={save}>{t('common.save')}</button>
         </>
       }
     >
       <div className="space-y-3 pt-2">
         <Field
-          label="URL"
+          label={t('link.url')}
           autoFocus
           value={url}
           error={error}
-          helper={dup ? `Already saved${dupWhere ? ` in "${dupWhere}"` : ''}. You can still add it again.` : undefined}
+          helper={dup ? t('link.alreadySaved', { where: dupWhere ?? '' }) : undefined}
           onChange={(v) => { setUrl(v); setError(''); setHint(''); }}
+          onBlur={() => { if (url.trim()) { const c = validateUrl(url); if (!c.ok) setError(c.reason); } }}
           onEnter={save}
         />
-        <Field label="Title (optional)" value={title} onChange={setTitle} helper={hint || undefined} />
+        <Field label={t('link.title')} value={title} onChange={setTitle} helper={hint || undefined} />
         {canFetchPages() && parsedUrl && !title && (
           <button type="button" className="btn-text !h-9 -mt-2" onClick={() => autofill(false)} disabled={fetching}>
             {fetching ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-            {fetching ? 'Reading page…' : 'Fill title from page'}
+            {fetching ? t('link.reading') : t('link.fillTitle')}
           </button>
         )}
-        <Field label="Note (optional)" value={desc} onChange={setDesc} />
-        <Field label="Tags" helper="Separate tags with commas" value={tags} onChange={setTags} />
-        <SelectField label="Collection" value={cid} onChange={(v) => { setCid(v); setSid(''); }}>
+        <Field label={t('link.note')} value={desc} onChange={setDesc} />
+        <Field label={t('link.tags')} helper={t('link.tagsHelp')} value={tags} onChange={setTags} />
+        <SelectField label={t('link.collection')} value={cid} onChange={(v) => { setCid(v); setSid(''); }}>
           {collections.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </SelectField>
         {sections.length > 0 && (
-          <SelectField label="Section" value={sid} onChange={setSid}>
-            <option value="">No section</option>
+          <SelectField label={t('link.section')} value={sid} onChange={setSid}>
+            <option value="">{t('link.noSection')}</option>
             {sections.map((x) => (
               <option key={x.id} value={x.id}>{x.name}</option>
             ))}
@@ -137,14 +141,14 @@ export function AddLinkModal({ collections, defaultCollectionId, defaultSectionI
                 className={`chip flex-1 justify-center !h-8 ${vis === v ? 'chip-active' : ''}`}
               >
                 {v === 'private' ? <Lock size={14} /> : <Globe size={14} />}
-                {v === 'private' ? 'Private' : 'Public'}
+                {v === 'private' ? t('common.private') : t('common.public')}
               </button>
             ))}
           </div>
           <p className="text-xs text-g-sub mt-2 px-1">
             {vis === 'private'
-              ? 'Private links stay on your devices and are left out of shared collections.'
-              : 'Public links are included when you share this collection.'}
+              ? t('link.privateHelp')
+              : t('link.publicHelp')}
           </p>
         </div>
       </div>

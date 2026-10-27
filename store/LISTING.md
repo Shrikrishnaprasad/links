@@ -44,6 +44,7 @@ Save, organise and share links (URLs).
 - contextMenus: adds "Save link to LinkVault" and "Save page to LinkVault" to the right-click menu.
 - clipboardRead: the "Paste link" button reads a URL from the clipboard when you click it.
 - clipboardWrite: copies links, share links and URL lists when you click Copy.
+- alarms: runs the optional daily link check in the background (off unless you turn on Link health).
 - Optional access to all websites (requested only if you click "Fill title from page" or "Check links"): downloads the title of a page you are saving and checks whether your saved links still load. No page content is stored or sent anywhere.
 
 ## Screenshots to capture (1280x800, at least one required)

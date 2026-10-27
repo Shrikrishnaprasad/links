@@ -16,6 +16,8 @@ We do not collect, receive or store any of your data. LinkVault has no server, n
 - Site icons: to show a small icon for each saved website, the extension requests an icon image from Google's favicon service (google.com/s2/favicons) using only the website's domain name.
 - Optional page access: if you click "Fill title from page" or "Check links", the extension asks for permission to access websites. When granted, it makes requests directly from your browser to the saved links to read a page title or check whether the page still loads. The results are stored only on your device.
 
+- Link previews: if you click "Load preview" in the details panel, the extension fetches the page's preview image directly from that website to display it. It is not stored.
+
 ## Sharing
 Share links are generated on your device and contain a copy of the shared collection's public links encoded in the link itself. Whoever you give the link to can read that copy. Because no server is involved, we cannot see or revoke these links.
 

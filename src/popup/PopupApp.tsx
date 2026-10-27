@@ -4,13 +4,15 @@ import { useAppData, useToast } from '../components/hooks';
 import { LinkCard } from '../components/LinkCard';
 import { ShareModal } from '../components/ShareModal';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { useT } from '../services/i18n';
 import { AddLinkModal } from '../components/AddLinkModal';
 import { ListSkeleton, Toast } from '../components/ui';
-import { addLink, normalizeUrl, trashLinks, updateLink } from '../services/storage';
+import { addLink, validateUrl, trashLinks, updateLink } from '../services/storage';
 import { copyText, readClipboard } from '../services/clipboard';
 import { DEFAULT_COLLECTION_ID, linkVisibility, type LinkItem } from '../types/links';
 
 export function PopupApp() {
+  const t = useT();
   const data = useAppData();
   const { msg, action, show, dismiss } = useToast();
   const [q, setQ] = useState('');
@@ -33,7 +35,8 @@ export function PopupApp() {
 
   const pasteFromClipboard = async () => {
     const text = (await readClipboard()).trim();
-    if (!text || !normalizeUrl(text)) return show('Clipboard has no valid URL');
+    const check = validateUrl(text);
+    if (!text || !check.ok) return show(check.ok ? 'Clipboard has no URL' : check.reason);
     await addLink({ url: text, collectionId: cid === 'all' ? DEFAULT_COLLECTION_ID : cid });
     show('Link saved from clipboard');
   };
@@ -74,10 +77,10 @@ export function PopupApp() {
 
       <div className="px-4 pb-2 flex gap-2">
         <button className="btn-primary flex-1" onClick={saveCurrentTab}>
-          <Plus size={14} /> Save tab
+          <Plus size={14} /> {t('popup.saveTab')}
         </button>
         <button className="btn-tonal flex-1" onClick={pasteFromClipboard}>
-          <ClipboardPaste size={14} /> Paste link
+          <ClipboardPaste size={14} /> {t('popup.paste')}
         </button>
       </div>
 
@@ -85,14 +88,15 @@ export function PopupApp() {
         <Search size={16} className="absolute left-7 top-2.5 text-g-sub" />
         <input
           className="input !h-9 !pl-9 !rounded-full !bg-g-surface !border-transparent"
-          placeholder="Search links"
+          placeholder={t('popup.search')}
+          aria-label={t('popup.search')}
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
       </div>
 
       <div className="px-4 pb-2 flex gap-2 overflow-x-auto">
-        <button className={`chip ${cid === 'all' ? 'chip-active' : ''}`} onClick={() => setCid('all')}>All</button>
+        <button className={`chip ${cid === 'all' ? 'chip-active' : ''}`} onClick={() => setCid('all')} aria-pressed={cid === 'all'}>{t('popup.all')}</button>
         {data.collections.map((c) => (
           <button
             key={c.id}
@@ -107,8 +111,8 @@ export function PopupApp() {
       <div className="flex-1 overflow-auto px-1 pb-2 border-t border-g-border">
         {links.length === 0 ? (
           <div className="text-center text-g-sub py-8 px-6">
-            <p className="text-base text-g-text mb-1">No links yet</p>
-            <p>Save the current tab or paste a link to get started.</p>
+            <p className="text-base text-g-text mb-1">{t('empty.noLinks')}</p>
+            <p>{t('empty.noLinksBody')}</p>
           </div>
         ) : (
           links.map((l) => (
@@ -118,12 +122,12 @@ export function PopupApp() {
               variant="compact"
               onCopy={async () => {
                 await copyText(l.url);
-                show('Link copied');
+                show(t('toast.copied'));
               }}
               onPin={() => updateLink(l.id, { isPinned: !l.isPinned })}
               onEdit={() => setEditing(l)}
               onToggleVisibility={() => updateLink(l.id, { visibility: linkVisibility(l) === 'private' ? 'public' : 'private' })}
-              onTrash={async () => { await trashLinks([l.id]); show('Moved to trash', { label: 'Undo', onClick: () => trashLinks([l.id], true) }); }}
+              onTrash={async () => { await trashLinks([l.id]); show(t('toast.trashed'), { label: t('toast.undo'), onClick: () => trashLinks([l.id], true) }); }}
             />
           ))
         )}

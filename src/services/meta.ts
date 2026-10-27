@@ -1,3 +1,5 @@
+import { canonicalUrl } from './storage';
+
 /**
  * Page metadata + link health, using an OPTIONAL host permission so the extension
  * only gets network access to other sites after the user opts in.
@@ -27,7 +29,7 @@ async function timedFetch(url: string, init: RequestInit, ms: number): Promise<R
   }
 }
 
-export async function fetchMeta(url: string): Promise<{ title?: string; description?: string } | null> {
+export async function fetchMeta(url: string): Promise<{ title?: string; description?: string; image?: string } | null> {
   try {
     const res = await timedFetch(url, { headers: { Accept: 'text/html' } }, 8000);
     if (!res.ok || !(res.headers.get('content-type') ?? '').includes('html')) return null;
@@ -38,24 +40,40 @@ export async function fetchMeta(url: string): Promise<{ title?: string; descript
     const title = og('og:title') || doc.title?.trim();
     const description =
       og('og:description') || doc.querySelector('meta[name="description"]')?.getAttribute('content')?.trim();
-    return { title: title || undefined, description: description || undefined };
+    let image = og('og:image');
+    if (image) {
+      try {
+        image = new URL(image, url).toString();
+      } catch {
+        image = undefined;
+      }
+    }
+    return { title: title || undefined, description: description || undefined, image };
   } catch {
     return null;
   }
 }
 
-/** 'broken' only for clear failures (4xx/5xx/DNS); other issues are treated as ok to avoid false alarms. */
-export async function checkLink(url: string): Promise<'ok' | 'broken'> {
-  if (!/^https?:/i.test(url)) return 'ok';
+export interface LinkCheck {
+  status: 'ok' | 'broken';
+  code?: number;
+  finalUrl?: string;
+}
+
+/**
+ * 'broken' only for clear failures (404/410/5xx, DNS errors, timeouts).
+ * 401/403/429 mean the page exists but is protected or rate limited, so they count as ok.
+ */
+export async function checkLink(url: string): Promise<LinkCheck> {
+  if (!/^https?:/i.test(url)) return { status: 'ok' };
   try {
     let res = await timedFetch(url, { method: 'HEAD' }, 8000);
-    if (res.status === 405 || res.status === 403 || res.status === 501) {
-      res = await timedFetch(url, { method: 'GET' }, 8000);
-    }
-    return res.status === 404 || res.status === 410 || res.status >= 500 ? 'broken' : 'ok';
-  } catch (e) {
-    // Network error (DNS failure, refused). Abort = timeout: treat as broken too.
-    return 'broken';
+    if ([403, 405, 501].includes(res.status)) res = await timedFetch(url, { method: 'GET' }, 8000);
+    const finalUrl = res.redirected && canonicalUrl(res.url) !== canonicalUrl(url) ? res.url : undefined;
+    const broken = res.status === 404 || res.status === 410 || res.status >= 500;
+    return { status: broken ? 'broken' : 'ok', code: res.status, finalUrl };
+  } catch {
+    return { status: 'broken' };
   }
 }
 

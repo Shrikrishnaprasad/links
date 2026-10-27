@@ -188,14 +188,39 @@ export function subscribe(l: Listener): () => void {
 
 /* ---------- CRUD ---------- */
 
-export function normalizeUrl(raw: string): string | null {
+export type UrlCheck = { ok: true; url: string } | { ok: false; reason: string };
+
+const BLOCKED_SCHEMES = /^(javascript|data|vbscript|blob):/i;
+const ALLOWED_PROTOCOLS = new Set(['http:', 'https:', 'ftp:', 'chrome:', 'edge:', 'about:', 'mailto:', 'tel:', 'file:']);
+
+/** Validates and normalises user-entered links. Unsafe schemes are rejected. */
+export function validateUrl(raw: string): UrlCheck {
   const t = raw.trim();
-  if (!t) return null;
+  if (!t) return { ok: false, reason: 'Enter a URL' };
+  if (BLOCKED_SCHEMES.test(t)) return { ok: false, reason: 'This type of link is not allowed' };
+  if (/\s/.test(t)) return { ok: false, reason: 'Web addresses cannot contain spaces' };
+  const hasScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(t) || /^(mailto|tel|about):/i.test(t);
+  let u: URL;
   try {
-    return new URL(/^[a-z][a-z0-9+.-]*:/i.test(t) ? t : 'https://' + t).toString();
+    u = new URL(hasScheme ? t : 'https://' + t);
   } catch {
-    return null;
+    return { ok: false, reason: "That doesn't look like a valid web address" };
   }
+  if (!ALLOWED_PROTOCOLS.has(u.protocol)) return { ok: false, reason: `${u.protocol} links are not supported` };
+  if (u.protocol === 'http:' || u.protocol === 'https:') {
+    const host = u.hostname;
+    const looksLocal = host === 'localhost' || /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.startsWith('[');
+    if (!hasScheme && !host.includes('.') && !looksLocal) {
+      return { ok: false, reason: 'Add a domain ending, for example example.com' };
+    }
+    if (host.endsWith('.') || host.includes('..')) return { ok: false, reason: "That doesn't look like a valid web address" };
+  }
+  return { ok: true, url: u.toString() };
+}
+
+export function normalizeUrl(raw: string): string | null {
+  const v = validateUrl(raw);
+  return v.ok ? v.url : null;
 }
 
 export const faviconFor = (url: string) => {
@@ -403,13 +428,23 @@ export async function patchLinks(patches: Array<Partial<LinkItem> & { id: string
   });
 }
 
-export async function setLinkStatuses(results: Array<{ id: string; status: 'ok' | 'broken' }>) {
+export interface CheckResult {
+  id: string;
+  status: 'ok' | 'broken';
+  code?: number;
+  finalUrl?: string;
+}
+
+export async function setLinkStatuses(results: CheckResult[]) {
   const data = await loadData();
-  const byId = new Map(results.map((r) => [r.id, r.status]));
+  const byId = new Map(results.map((r) => [r.id, r]));
   const now = Date.now();
   await saveData({
     ...data,
-    links: data.links.map((l) => (byId.has(l.id) ? { ...l, linkStatus: byId.get(l.id), checkedAt: now } : l)),
+    links: data.links.map((l) => {
+      const r = byId.get(l.id);
+      return r ? { ...l, linkStatus: r.status, statusCode: r.code, finalUrl: r.finalUrl, checkedAt: now } : l;
+    }),
   });
 }
 
@@ -458,7 +493,13 @@ export async function importBackup(file: BackupFile): Promise<{ links: number; c
   const colIds = new Set(data.collections.map((c) => c.id));
   const linkIds = new Set(data.links.map((l) => l.id));
   const newCols = file.data.collections.filter((c) => !colIds.has(c.id));
-  const newLinks = file.data.links.filter((l) => !linkIds.has(l.id));
+  // Drop anything with an unsafe or invalid address (a backup file is untrusted input).
+  const newLinks = file.data.links
+    .filter((l) => !linkIds.has(l.id))
+    .flatMap((l) => {
+      const v = validateUrl(String(l.url ?? ''));
+      return v.ok ? [{ ...l, url: v.url, tags: Array.isArray(l.tags) ? l.tags : [] }] : [];
+    });
   await saveData({ collections: [...data.collections, ...newCols], links: [...newLinks, ...data.links] });
   return { links: newLinks.length, collections: newCols.length };
 }
@@ -620,5 +661,40 @@ export async function removeSectionWithLinks(collectionId: string, sectionId: st
       c.id === collectionId ? { ...c, sections: (c.sections ?? []).filter((x) => x.id !== sectionId) } : c,
     ),
     links: data.links.filter((l) => !(l.collectionId === collectionId && l.sectionId === sectionId)),
+  });
+}
+
+/* ---------- Tags ---------- */
+
+export async function editTags(ids: string[], add: string[], remove: string[]) {
+  const data = await loadData();
+  const set = new Set(ids);
+  const rm = new Set(remove);
+  await saveData({
+    ...data,
+    links: data.links.map((l) =>
+      set.has(l.id)
+        ? { ...l, tags: [...new Set([...l.tags.filter((t) => !rm.has(t)), ...add])], updatedAt: Date.now() }
+        : l,
+    ),
+  });
+}
+
+/** Rename a tag everywhere. Renaming to an existing tag merges them. */
+export async function renameTag(from: string, to: string) {
+  const data = await loadData();
+  await saveData({
+    ...data,
+    links: data.links.map((l) =>
+      l.tags.includes(from) ? { ...l, tags: [...new Set(l.tags.map((t) => (t === from ? to : t)))], updatedAt: Date.now() } : l,
+    ),
+  });
+}
+
+export async function deleteTag(tag: string) {
+  const data = await loadData();
+  await saveData({
+    ...data,
+    links: data.links.map((l) => (l.tags.includes(tag) ? { ...l, tags: l.tags.filter((t) => t !== tag), updatedAt: Date.now() } : l)),
   });
 }

@@ -39,6 +39,9 @@ export interface LinkItem {
   order?: number;
   /** Result of the last broken-link check. */
   linkStatus?: 'ok' | 'broken';
+  statusCode?: number;
+  /** Where the link ended up after redirects, if different. */
+  finalUrl?: string;
   checkedAt?: number;
   createdAt: number;
   updatedAt: number;

@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { ChevronDown, X } from 'lucide-react';
+import { useT } from '../services/i18n';
 
 /** Material 3 dialog: scrim, 28px radius, focus trap-lite, Esc to close, restores focus. */
 export function Modal({
@@ -17,6 +18,7 @@ export function Modal({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  const t = useT();
 
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null;
@@ -52,7 +54,7 @@ export function Modal({
       >
         <div className="flex items-center justify-between pl-5 pr-2 pt-3 pb-1">
           <h2 id={titleId} className="text-[20px] leading-7 font-normal">{title}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">
+          <button className="icon-btn" onClick={onClose} aria-label={t('common.close')}>
             <X size={18} />
           </button>
         </div>
@@ -113,6 +115,7 @@ export function Field({
   helper,
   autoFocus,
   onEnter,
+  onBlur,
   type = 'text',
 }: {
   label: string;
@@ -122,6 +125,7 @@ export function Field({
   helper?: string;
   autoFocus?: boolean;
   onEnter?: () => void;
+  onBlur?: () => void;
   type?: string;
 }) {
   const id = useId();
@@ -137,6 +141,7 @@ export function Field({
           aria-invalid={!!error}
           aria-describedby={error || helper ? `${id}-d` : undefined}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
           onKeyDown={(e) => e.key === 'Enter' && onEnter?.()}
           className={`peer w-full h-11 rounded-md border bg-transparent px-3 text-[13px] text-g-text placeholder-transparent transition-colors focus:outline-none focus:ring-1 ${
             error
