@@ -381,7 +381,7 @@ export function DashboardApp() {
         <div className="relative flex-1 max-w-3xl">
           <Search size={18} className="absolute left-3.5 top-2.5 text-g-sub" />
           <input
-            className="w-full h-10 rounded-full bg-g-surface pl-10 pr-4 text-[13px] placeholder:text-g-sub focus:bg-g-bg focus:shadow-g1 focus:outline-none transition-shadow"
+            className="w-full h-9 rounded-full bg-g-surface pl-10 pr-4 text-[12px] placeholder:text-g-sub focus:bg-g-bg focus:shadow-g1 focus:outline-none transition-shadow"
             placeholder={t('search.placeholder')}
             aria-label={t('search.placeholder')}
             value={q}

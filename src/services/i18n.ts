@@ -1,13 +1,23 @@
 import { useCallback, useSyncExternalStore } from 'react';
+import { ar, bn, it, ja, pt, ru, ta, te, zh } from './i18n-extra';
 import { deMore, enMore, esMore, frMore, hiMore } from './i18n-more';
 
-export type Lang = 'en' | 'hi' | 'es' | 'fr' | 'de';
+export type Lang = 'en' | 'hi' | 'ta' | 'te' | 'bn' | 'es' | 'fr' | 'de' | 'pt' | 'it' | 'ru' | 'ja' | 'zh' | 'ar';
 export const LANGUAGES: Array<{ code: Lang; name: string }> = [
   { code: 'en', name: 'English' },
   { code: 'hi', name: 'हिन्दी' },
   { code: 'es', name: 'Español' },
   { code: 'fr', name: 'Français' },
   { code: 'de', name: 'Deutsch' },
+  { code: 'ta', name: 'தமிழ்' },
+  { code: 'te', name: 'తెలుగు' },
+  { code: 'bn', name: 'বাংলা' },
+  { code: 'pt', name: 'Português' },
+  { code: 'it', name: 'Italiano' },
+  { code: 'ru', name: 'Русский' },
+  { code: 'ja', name: '日本語' },
+  { code: 'zh', name: '中文' },
+  { code: 'ar', name: 'العربية' },
 ];
 
 const enBase = {
@@ -148,7 +158,8 @@ const DICTS: Record<Lang, Dict> = {
   es: { ...es, ...esMore },
   fr: { ...fr, ...frMore },
   de: { ...de, ...deMore },
-};
+  ta, te, bn, pt, it, ru, ja, zh, ar,
+} as Record<Lang, Dict>;
 const KEY = 'linkvault:lang';
 
 function detect(): Lang {
@@ -164,6 +175,7 @@ const emit = () => subs.forEach((f) => f());
 
 export function applyLang() {
   document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
 }
 
 export function setLang(l: Lang) {

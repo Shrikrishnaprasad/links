@@ -143,7 +143,7 @@ export function Field({
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
           onKeyDown={(e) => e.key === 'Enter' && onEnter?.()}
-          className={`peer w-full h-11 rounded-md border bg-transparent px-3 text-[13px] text-g-text placeholder-transparent transition-colors focus:outline-none focus:ring-1 ${
+          className={`peer w-full h-8 rounded border bg-transparent px-2.5 text-[12px] text-g-text placeholder-transparent transition-colors focus:outline-none focus:ring-1 ${
             error
               ? 'border-g-red ring-g-red focus:border-g-red focus:ring-g-red'
               : 'border-g-border hover:border-g-text/70 focus:border-g-blue focus:ring-g-blue'
@@ -151,9 +151,9 @@ export function Field({
         />
         <label
           htmlFor={id}
-          className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 px-1 bg-g-bg text-[13px] text-g-sub transition-all duration-150 ease-emphasized
-            peer-focus:top-0 peer-focus:text-[11px] ${error ? 'peer-focus:text-g-red' : 'peer-focus:text-g-blue'}
-            peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[11px] ${error ? 'text-g-red' : ''}`}
+          className={`pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 px-1 bg-g-bg text-[12px] text-g-sub transition-all duration-150 ease-emphasized
+            peer-focus:top-0 peer-focus:text-[10px] ${error ? 'peer-focus:text-g-red' : 'peer-focus:text-g-blue'}
+            peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[10px] ${error ? 'text-g-red' : ''}`}
         >
           {label}
         </label>
@@ -186,14 +186,14 @@ export function SelectField({
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-11 appearance-none [&>option]:bg-g-bg [&>option]:text-g-text [&>option]:bg-g-bg [&>option]:text-g-text rounded-md border border-g-border bg-transparent px-3 pr-9 text-[13px] text-g-text hover:border-g-text/70 focus:outline-none focus:border-g-blue focus:ring-1 focus:ring-g-blue transition-colors"
+        className="w-full h-8 appearance-none [&>option]:bg-g-bg [&>option]:text-g-text rounded border border-g-border bg-transparent px-2.5 pr-8 text-[12px] text-g-text hover:border-g-text/70 focus:outline-none focus:border-g-blue focus:ring-1 focus:ring-g-blue transition-colors"
       >
         {children}
       </select>
-      <label htmlFor={id} className="pointer-events-none absolute left-2.5 top-0 -translate-y-1/2 px-1 bg-g-bg text-[11px] text-g-sub">
+      <label htmlFor={id} className="pointer-events-none absolute left-2 top-0 -translate-y-1/2 px-1 bg-g-bg text-[10px] text-g-sub">
         {label}
       </label>
-      <ChevronDown size={18} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-g-sub" />
+      <ChevronDown size={14} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-g-sub" />
     </div>
   );
 }

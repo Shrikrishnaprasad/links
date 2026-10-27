@@ -96,11 +96,11 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
   }
   .icon-btn-sm { @apply icon-btn !w-7 !h-7; }
   .input {
-    @apply w-full h-9 rounded-md border border-g-border bg-transparent px-3 text-[13px] text-g-text placeholder:text-g-sub hover:border-g-text/70 focus:border-g-blue focus:ring-1 focus:ring-g-blue transition-colors;
+    @apply w-full h-8 rounded border border-g-border bg-transparent px-2.5 text-[12px] text-g-text placeholder:text-g-sub hover:border-g-text/70 focus:border-g-blue focus:ring-1 focus:ring-g-blue transition-colors;
   }
   /* Docs-style borderless dropdown (role pickers) */
   .select-inline {
-    @apply h-8 rounded-md bg-transparent px-2 text-[13px] text-g-text cursor-pointer hover:bg-g-text/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-g-blue/60 transition-colors;
+    @apply h-7 rounded bg-transparent px-1.5 text-[12px] text-g-text cursor-pointer hover:bg-g-text/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-g-blue/60 transition-colors;
   }
   .select-inline option { @apply bg-g-bg text-g-text; }
   .input option { @apply bg-g-bg text-g-text; }

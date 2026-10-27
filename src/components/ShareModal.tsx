@@ -93,7 +93,7 @@ export function ShareModal({ collection, links: allLinks, onClose, onToast }: Pr
             <option value="editor">{t('share.editor')}</option>
           </SelectField>
         </div>
-        <button className="btn-primary !h-11" onClick={addPerson}>{t('common.add')}</button>
+        <button className="btn-primary !h-8" onClick={addPerson}>{t('common.add')}</button>
       </div>
 
       <h3 className="text-sm font-medium mt-5 mb-2">{t('share.people')}</h3>
