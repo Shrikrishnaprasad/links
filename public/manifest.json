@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "LinkVault - Link Manager",
+  "version": "1.0.0",
+  "description": "Save, organise and share links in collections with tags, search and one-click copy.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": ["storage", "activeTab", "contextMenus", "clipboardRead", "clipboardWrite"],
+  "optional_host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "LinkVault",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "commands": {
+    "save-current-tab": {
+      "suggested_key": { "default": "Ctrl+Shift+S", "mac": "Command+Shift+S" },
+      "description": "Save current tab to LinkVault"
+    }
+  }
+}

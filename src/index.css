@@ -1,0 +1,119 @@
+/* Fonts are bundled locally (no network requests, store-friendly). */
+@import '@fontsource/roboto/latin-400.css';
+@import '@fontsource/roboto/latin-500.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Material 3 colour roles (space-separated RGB so Tailwind opacity modifiers work) */
+:root {
+  color-scheme: light;
+  --g-bg: 255 255 255;
+  --g-canvas: 249 251 253;
+  --g-surface: 240 244 249;
+  --g-hover: 233 238 246;
+  --g-nav: 211 227 253;
+  --g-tonal: 194 231 255;
+  --g-on-tonal: 0 29 53;
+  --g-blue: 11 87 208;
+  --g-blue-hover: 10 76 184;
+  --g-blue-soft: 234 241 251;
+  --g-on-blue: 255 255 255;
+  --g-red: 179 38 30;
+  --g-green: 20 108 46;
+  --g-yellow: 227 150 0;
+  --g-text: 31 31 31;
+  --g-sub: 68 71 70;
+  --g-border: 196 199 197;
+}
+:root[data-theme='light'] { color-scheme: light; }
+:root[data-theme='dark'] {
+  color-scheme: dark;
+    --g-bg: 30 31 32;
+    --g-canvas: 19 19 20;
+    --g-surface: 40 42 44;
+    --g-hover: 51 53 55;
+    --g-nav: 0 74 119;
+    --g-tonal: 0 74 119;
+    --g-on-tonal: 194 231 255;
+    --g-blue: 168 199 250;
+    --g-blue-hover: 194 217 252;
+    --g-blue-soft: 40 54 80;
+    --g-on-blue: 6 46 111;
+    --g-red: 242 184 181;
+    --g-green: 109 213 140;
+    --g-yellow: 253 214 99;
+    --g-text: 227 227 227;
+    --g-sub: 196 199 197;
+    --g-border: 142 145 143;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    color-scheme: dark;
+    --g-bg: 30 31 32;
+    --g-canvas: 19 19 20;
+    --g-surface: 40 42 44;
+    --g-hover: 51 53 55;
+    --g-nav: 0 74 119;
+    --g-tonal: 0 74 119;
+    --g-on-tonal: 194 231 255;
+    --g-blue: 168 199 250;
+    --g-blue-hover: 194 217 252;
+    --g-blue-soft: 40 54 80;
+    --g-on-blue: 6 46 111;
+    --g-red: 242 184 181;
+    --g-green: 109 213 140;
+    --g-yellow: 253 214 99;
+    --g-text: 227 227 227;
+    --g-sub: 196 199 197;
+    --g-border: 142 145 143;
+  }
+}
+
+body {
+  @apply bg-g-canvas text-g-text antialiased font-sans text-[13px];
+  margin: 0;
+}
+
+* { scrollbar-width: thin; scrollbar-color: rgb(var(--g-border)) transparent; }
+*:focus-visible { outline: 2px solid rgb(var(--g-blue)); outline-offset: 2px; }
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 h-8 text-[13px] font-medium tracking-[.01em] transition-all duration-150 ease-emphasized disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none select-none;
+  }
+  .btn-primary { @apply btn bg-g-blue text-g-onBlue hover:bg-g-blueHover hover:shadow-g1 active:shadow-none; }
+  .btn-tonal { @apply btn bg-g-tonal text-g-onTonal hover:shadow-g1 hover:brightness-95 active:brightness-90; }
+  .btn-outline { @apply btn border border-g-border text-g-blue hover:bg-g-blue/10; }
+  .btn-text { @apply btn text-g-blue hover:bg-g-blue/10 active:bg-g-blue/15 px-3; }
+  .icon-btn {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded-full text-g-sub hover:bg-g-text/10 active:bg-g-text/15 transition-colors;
+  }
+  .icon-btn-sm { @apply icon-btn !w-7 !h-7; }
+  .input {
+    @apply w-full h-9 rounded-md border border-g-border bg-transparent px-3 text-[13px] text-g-text placeholder:text-g-sub hover:border-g-text/70 focus:border-g-blue focus:ring-1 focus:ring-g-blue transition-colors;
+  }
+  /* Docs-style borderless dropdown (role pickers) */
+  .select-inline {
+    @apply h-8 rounded-md bg-transparent px-2 text-[13px] text-g-text cursor-pointer hover:bg-g-text/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-g-blue/60 transition-colors;
+  }
+  .select-inline option { @apply bg-g-bg text-g-text; }
+  .input option { @apply bg-g-bg text-g-text; }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-lg border border-g-border px-2.5 h-7 text-[13px] text-g-text hover:bg-g-text/5 cursor-pointer transition-colors whitespace-nowrap select-none;
+  }
+  .chip-active { @apply bg-g-tonal border-transparent text-g-onTonal hover:bg-g-tonal; }
+  .skeleton { @apply relative overflow-hidden rounded bg-g-surface; }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-g-bg/60 to-transparent;
+    animation: shimmer 1.4s infinite;
+  }
+}
+
+@keyframes shimmer { 100% { transform: translateX(100%); } }
