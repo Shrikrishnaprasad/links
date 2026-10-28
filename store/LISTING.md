@@ -47,13 +47,21 @@ Save, organise and share links (URLs).
 - alarms: runs the optional daily link check in the background (off unless you turn on Link health).
 - Optional access to all websites (requested only if you click "Fill title from page" or "Check links"): downloads the title of a page you are saving and checks whether your saved links still load. No page content is stored or sent anywhere.
 
-## Screenshots to capture (1280x800, at least one required)
-1. Dashboard list view with collections and sections.
-2. Dashboard grid view in dark mode.
-3. Share dialog.
-4. Popup with saved links.
-5. Duplicates view or import/export dialog.
+## Store graphics (ready to upload)
+
+Generated PNGs live in **`store/graphics/`** (regenerate: `node scripts/generate-store-graphics.mjs`).
+
+| File | Size | Use in dashboard |
+|------|------|------------------|
+| `screenshot-01-dashboard-1280x800.png` | 1280×800 | Screenshot |
+| `screenshot-02-popup-1280x800.png` | 1280×800 | Screenshot |
+| `screenshot-03-share-1280x800.png` | 1280×800 | Screenshot |
+| `screenshot-04-grid-dark-1280x800.png` | 1280×800 | Screenshot |
+| `screenshot-05-features-1280x800.png` | 1280×800 | Screenshot |
+| `promo-tile-440x280.png` | 440×280 | Small promo tile |
+| `marquee-1400x560.png` | 1400×560 | Marquee (optional) |
+
+Upload **at least one** screenshot (1280×800). Add up to 5 for a stronger listing.
 
 ## Assets
-- Icon 128x128: public/icons/icon-128.png (already in the package).
-- Small promo tile 440x280: needs to be designed (optional but recommended).
+- Icon 128x128: `public/icons/icon-128.png` (already in the extension package).
